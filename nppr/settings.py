@@ -13,6 +13,7 @@ depc = AttributeDict({
     'git_pwd': '',
     'git_remote': '',
     'git_remote_url': 'https://{git_user}:{git_pwd}@{git_remote}',  # git仓库最终路径 如果是公开仓库 直接写这里
+    'python_command': 'python manage.py runserver 0.0.0.0:80',
     'nginx_port': 80,
     'nginx_host': '127.0.0.1',  # ip或者域名
     'psql_database': 'db_django',

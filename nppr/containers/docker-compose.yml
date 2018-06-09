@@ -10,9 +10,9 @@ services:
     expose:
       - "54321"
     environment:
-      POSTGRES_DB: db_project
-      POSTGRES_USER: project
-      POSTGRES_PASSWORD: project
+      POSTGRES_DB: db_django
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
 
   redis:
     restart: always
@@ -32,7 +32,7 @@ services:
       - redis:redis
     volumes:
       - ./python/data:/www
-    command: circusd /www/circus.ini
+    command: python manage.py runserver 0.0.0.0:80
 
   nginx:
     restart: always
@@ -54,12 +54,3 @@ services:
       - python:python
     command: /bin/bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
 
-#  flower:
-#    restart: always
-#    build: ./flower/
-#    container_name: flower
-#    ports:
-#      - "5000:5000"
-#    links:
-#      - redis:redis
-#    command: celery flower --basic_auth=admin:admin --address=0.0.0.0 --port=5000 --broker=redis://redis:6379/10

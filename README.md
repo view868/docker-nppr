@@ -50,9 +50,11 @@ git_remote git仓库路径 不要http://
 
 git_remote_url git最终路径 如果是公开的项目 git_user/git_pwd/git_remote不用设置
 
+python_command python容器启动命令 默认：python manage.py runserver 0.0.0.0:80
+
 nginx_port nginx监听端口 默认：80
 
-nginx_host nginx主机 一般为域名或主机IP 默认：127.0.0.1
+nginx_host nginx主机 一般为域名或主机IP 默认：127.0.0.1 *
 
 psql_database 默认：db_django
 

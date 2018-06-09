@@ -118,6 +118,8 @@ def config_build():
         if 'nginx' in temp['services'].keys():
             temp['services']['nginx']['environment']['NGINX_PORT'] = depc.nginx_port
             temp['services']['nginx']['environment']['NGINX_HOST'] = depc.nginx_host
+        if 'python' in temp['services'].keys():
+            temp['services']['python']['command'] = depc.python_command
         # 重新命名容器名称=项目名称_环境名称
         for item in temp['services']:
             container_name = temp['services'][item]['container_name']
