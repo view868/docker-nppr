@@ -4,7 +4,7 @@
 ### 安装
 pip install docker-nppr
 
-### tasks列表
+### tasks
 get_cid 获取容器ID
 
 get_cip 获取容器IP
@@ -66,17 +66,20 @@ env.passwords = {
 TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
 
 dep.build = TESTS_DIR
+
 dep.git_user = 'git账户'
+
 dep.git_pwd = 'git密码'
+
 dep.git_remote = 'git仓库路径'
 
 部署项目
 
-fab deploy
+执行 fab deploy
 
 更新项目
 
-fab update
+执行 fab update
 
 ### hosts
 postgresql->postgres
