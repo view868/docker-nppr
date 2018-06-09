@@ -4,6 +4,37 @@
 ### 安装
 pip install docker-nppr
 
+
+### 使用
+在项目根目录创建fab.py文件 内容如下
+
+from fabric.state import env
+
+from nppr.tasks import *
+
+env.hosts = ['root@服务器IP',]
+
+env.passwords = {'root@服务器IP:22': '服务器密码',}
+
+TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
+
+dep.build = TESTS_DIR
+
+dep.git_user = 'git账户'
+
+dep.git_pwd = 'git密码'
+
+dep.git_remote = 'git仓库路径'
+
+部署项目
+
+执行 fab deploy
+
+更新项目
+
+执行 fab update
+
+
 ### tasks
 get_cid 获取容器ID
 
@@ -49,35 +80,6 @@ psql_user 默认：root
 psql_pwd 默认：root
 
 psql_port 默认：5432
-
-### 使用
-在项目根目录创建fab.py文件 内容如下
-
-from fabric.state import env
-
-from nppr.tasks import *
-
-env.hosts = ['root@服务器IP',]
-
-env.passwords = {'root@服务器IP:22': '服务器密码',}
-
-TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
-
-dep.build = TESTS_DIR
-
-dep.git_user = 'git账户'
-
-dep.git_pwd = 'git密码'
-
-dep.git_remote = 'git仓库路径'
-
-部署项目
-
-执行 fab deploy
-
-更新项目
-
-执行 fab update
 
 ### hosts
 postgresql->postgres
