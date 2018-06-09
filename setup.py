@@ -1,25 +1,32 @@
-from setuptools import setup, find_packages
+# -*- coding: utf-8 -*-
+import sys
+
+from setuptools import find_packages, setup
 
 setup(
-    name='docker-nppr',
-    version='0.0.1',
-    keywords=('pip', 'docker', 'django', 'python', 'postgresql', 'redis', 'fabric'),
-    description='A nginx/django/postgresql/redis quick deployment tool on docker',
-    long_description=open('README.rst').read(),
-    author='view',
-    author_email='view868@gmail.com',
-    license='BSD License',
-    packages=find_packages(),
+    name='nppr',
+    version='0.0.9a',
+    description='A nginx/django/postgresql/redis quick deployment tool on docker'
+                'Uses docker-compose',
+    url='https://github.com/view868/docker-nppr',
+    maintainer='view',
+    maintainer_email='view868@gmail.com',
     include_package_data=True,
+    packages=find_packages(exclude=['tests.py'], include=['nppr']),
+    install_requires=[
+        'fabric3',
+        'PyYAML'
+    ],
     platforms=['Any'],
-    install_requires=['fabric3', 'PyYAML'],  # 这个项目需要的第三方库
-    url='',
+    keywords=['django', 'docker', 'postgresql', 'redis'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
@@ -27,5 +34,6 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-    ],
+        'Framework :: Django',
+    ]
 )

@@ -3,7 +3,7 @@ import os
 # 部署设置
 from nppr.utils import AttributeDict
 
-dep = AttributeDict({
+depc = AttributeDict({
     'name': 'test',  # 项目名称
     'deploy': '/home',  # 项目部署在服务器的目录
     'deploy_dir': '{deploy}/{name}',  # 项目部署最终目录

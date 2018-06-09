@@ -11,7 +11,7 @@ from fabric.contrib.files import exists
 from fabric.decorators import task
 from fabric.operations import run, local, put
 
-from nppr.settings import dep
+from nppr.settings import depc
 
 TASKS_DIR = os.path.abspath(os.path.dirname(__file__))
 CONTAINERS_DIR = os.path.abspath(os.path.dirname(__file__)) + '/containers'
@@ -104,25 +104,25 @@ def config_build():
     :return:
     """
     # 复制文件到build目录
-    if not os.path.exists(dep.build_dir):
+    if not os.path.exists(depc.build_dir):
         print('复制构建文件...')
-        shutil.copytree(CONTAINERS_DIR, dep.build_dist, symlinks=True, ignore=shutil.ignore_patterns('*.py'))
+        shutil.copytree(CONTAINERS_DIR, depc.build_dir, symlinks=True, ignore=shutil.ignore_patterns('*.py'))
     print('构建/docker-compose.yaml文件...')
     with open(CONTAINERS_DIR + '/docker-compose.yml', 'r') as fr:
         temp = yaml.load(fr.read())
         if 'postgres' in temp['services'].keys():
-            temp['services']['postgres']['expose'] = [str(dep.psql_port)]
-            temp['services']['postgres']['environment']['POSTGRES_DB'] = dep.psql_database
-            temp['services']['postgres']['environment']['POSTGRES_USER'] = dep.psql_user
-            temp['services']['postgres']['environment']['POSTGRES_PASSWORD'] = dep.psql_pwd
+            temp['services']['postgres']['expose'] = [str(depc.psql_port)]
+            temp['services']['postgres']['environment']['POSTGRES_DB'] = depc.psql_database
+            temp['services']['postgres']['environment']['POSTGRES_USER'] = depc.psql_user
+            temp['services']['postgres']['environment']['POSTGRES_PASSWORD'] = depc.psql_pwd
         if 'nginx' in temp['services'].keys():
-            temp['services']['nginx']['environment']['NGINX_PORT'] = dep.nginx_port
-            temp['services']['nginx']['environment']['NGINX_HOST'] = dep.nginx_host
+            temp['services']['nginx']['environment']['NGINX_PORT'] = depc.nginx_port
+            temp['services']['nginx']['environment']['NGINX_HOST'] = depc.nginx_host
         # 重新命名容器名称=项目名称_环境名称
         for item in temp['services']:
             container_name = temp['services'][item]['container_name']
-            temp['services'][item]['container_name'] = dep.name + '_' + container_name
-        with open(dep.build_dir + '/docker-compose.yml', 'w') as fw:
+            temp['services'][item]['container_name'] = depc.name + '_' + container_name
+        with open(depc.build_dir + '/docker-compose.yml', 'w') as fw:
             yaml.dump(temp, stream=fw)
 
 
@@ -133,23 +133,23 @@ def config_upload():
     :return:
 
     """
-    if not exists(dep.deploy_dir):
+    if not exists(depc.deploy_dir):
         print('创建远程目录...')
-        run('mkdir -p %s' % dep.deploy_dir)
+        run('mkdir -p %s' % depc.deploy_dir)
     print('打包文件...')
-    tar_name = 'containers.tar.gz'
-    with lcd(dep.build):
-        local('tar -zcvf %s containers' % tar_name)
+    tar_name = '%s.tar.gz' % depc.name
+    with lcd(depc.build):
+        local('tar -zcvf %s containers/' % tar_name)
         print('上传压缩文件...')
         with settings(warn_only=True):
-            result = put(dep.build + '/%s' % tar_name, dep.deploy_dir + '/%s' % tar_name)
-            print('删除本地文件...')
-            local('rm %s' % tar_name)
+            result = put(depc.build + '/%s' % tar_name, depc.deploy_dir + '/%s' % tar_name)
+            # print('删除本地文件...')
+            # local('rm %s' % tar_name)
         if result.failed and not confirm("put file failed, Continue[Y/N]?"):
             os.abort("上传文件失败")
-    with cd(dep.deploy_dir):
+    with cd(depc.deploy_dir):
         print('解压远程文件...')
-        run('tar -xzvf %s' % tar_name)
+        run('tar -xzvf %s --strip-components 1' % tar_name)
         print('删除远程文件...')
         run('rm %s' % tar_name)
 
@@ -160,11 +160,11 @@ def container_build():
     初始化项目
     :return:
     """
-    if not exists(dep.remote_dir + '/python/data/.git'):
-        with cd(dep.remote_dir + '/python'):
+    if not exists(depc.remote_dir + '/python/data/.git'):
+        with cd(depc.remote_dir + '/python'):
             print('开始克隆项目...')
-            run('git clone ' + dep.git_remote_url + ' data')
-    with cd(dep.remote_dir):
+            run('git clone ' + depc.git_remote_url + ' data')
+    with cd(depc.remote_dir):
         print('开始构建Docker容器...')
         run('docker-compose up -d')
         #
@@ -204,7 +204,7 @@ def update():
     更新python
     :return:
     """
-    with cd(dep.remote_dir + '/python'):
+    with cd(depc.remote_dir + '/python/data/'):
         print('获取git更新...')
         run('git pull')
         cid = get_cid()
@@ -216,6 +216,6 @@ def update():
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
         run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
-    with cd(dep.remote_dir):
+    with cd(depc.remote_dir):
         print('重启容器...')
         run('docker-compose restart')

@@ -3,3 +3,5 @@
 /containers.tar.gz
 venv
 tests.py
+dist
+nppr.egg-info
