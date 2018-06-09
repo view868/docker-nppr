@@ -35,29 +35,6 @@ dep.git_remote = 'git仓库路径'
 执行 fab update
 
 
-### tasks
-get_cid 获取容器ID
-
-get_cip 获取容器IP
-
-docker_install 安装 docker/docker-compose/postgresql/git
-
-docker_clean 删除docker容器和镜像
-
-config_build 构建配置文件（本地）
-
-config_upload 上传配置文件
-
-config_update 等于config_build+config_upload
-
-container_build 构建容器
-
-deploy 部署项目
-
-update 更新项目
-
-restart 重启服务
-
 ### 配置项
 name 项目名称 默认：test
 
@@ -89,3 +66,26 @@ psql_port 默认：5432
 postgresql->postgres
 
 redis->redis
+
+### tasks
+get_cid 获取容器ID
+
+get_cip 获取容器IP
+
+docker_install 安装 docker/docker-compose/postgresql/git
+
+docker_clean 删除docker容器和镜像
+
+docker_create 构建容器
+
+config_build 构建配置文件（本地）
+
+config_upload 上传配置文件
+
+config_update 等于config_build+config_upload
+
+deploy 部署项目 等于docker_install+config_update+docker_create
+
+update 更新项目
+
+restart 重启服务

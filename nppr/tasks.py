@@ -166,7 +166,7 @@ def config_update():
 
 
 @task()
-def container_build():
+def docker_create():
     """
     初始化项目
     :return:
@@ -203,9 +203,8 @@ def deploy():
     :return:
     """
     docker_install()
-    config_build()
-    config_upload()
-    container_build()
+    config_update()
+    docker_create()
     print('部署完成！')
 
 
