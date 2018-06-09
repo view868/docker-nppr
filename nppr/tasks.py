@@ -143,8 +143,8 @@ def config_upload():
         print('上传压缩文件...')
         with settings(warn_only=True):
             result = put(depc.build + '/%s' % tar_name, depc.deploy_dir + '/%s' % tar_name)
-            # print('删除本地文件...')
-            # local('rm %s' % tar_name)
+            print('删除本地文件...')
+            local('rm %s' % tar_name)
         if result.failed and not confirm("put file failed, Continue[Y/N]?"):
             os.abort("上传文件失败")
     with cd(depc.deploy_dir):
@@ -152,6 +152,17 @@ def config_upload():
         run('tar -xzvf %s --strip-components 1' % tar_name)
         print('删除远程文件...')
         run('rm %s' % tar_name)
+
+
+@task()
+def config_update():
+    """
+    上传dockerfile和相关配置文件
+    :return:
+
+    """
+    config_build()
+    config_upload()
 
 
 @task()
@@ -216,6 +227,17 @@ def update():
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
         run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
+    with cd(depc.remote_dir):
+        print('重启容器...')
+        run('docker-compose restart')
+
+
+@task()
+def restart():
+    """
+    重启
+    :return:
+    """
     with cd(depc.remote_dir):
         print('重启容器...')
         run('docker-compose restart')

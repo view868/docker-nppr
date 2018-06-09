@@ -48,11 +48,15 @@ config_build 构建配置文件（本地）
 
 config_upload 上传配置文件
 
+config_update 等于config_build+config_upload
+
 container_build 构建容器
 
 deploy 部署项目
 
 update 更新项目
+
+restart 重启服务
 
 ### 配置项
 name 项目名称 默认：test
