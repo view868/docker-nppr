@@ -2,7 +2,7 @@
 使用Docker创建Nginx+Django+Postgresql+Redis快速创建部署环境 
 
 ### 安装
-pip install docker-nppr
+pip install nppr
 
 
 ### 使用
