@@ -6,25 +6,7 @@ pip install nppr
 
 
 ### 使用
-在项目根目录创建fab.py文件 内容如下
-
-from fabric.state import env
-
-from nppr.tasks import *
-
-env.hosts = ['root@服务器IP',]
-
-env.passwords = {'root@服务器IP:22': '服务器密码',}
-
-TESTS_DIR = os.path.abspath(os.path.dirname(__file__))
-
-dep.build = TESTS_DIR
-
-dep.git_user = 'git账户'
-
-dep.git_pwd = 'git密码'
-
-dep.git_remote = 'git仓库路径'
+在项目根目录创建fab.py文件 内容参照examples.py
 
 部署项目
 
