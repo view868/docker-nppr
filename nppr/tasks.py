@@ -12,6 +12,7 @@ from fabric.decorators import task
 from fabric.operations import run, local, put
 
 from nppr.settings import depc
+from fabric.state import env
 
 TASKS_DIR = os.path.abspath(os.path.dirname(__file__))
 CONTAINERS_DIR = os.path.abspath(os.path.dirname(__file__)) + '/containers'
@@ -103,6 +104,12 @@ def config_build():
     构建配置文件
     :return:
     """
+    host = '127.0.0.1'
+    if len(env.hosts) == 1:
+        host = env.hosts[0].split('@')[1]
+    else:
+        os.abort("获取主机IP失败或有多个主机，项目目前暂时不支持多主机")
+    print(env.hosts)
     # 复制文件到build目录
     if not os.path.exists(depc.build_dir):
         print('复制构建文件...')
@@ -117,7 +124,8 @@ def config_build():
             temp['services']['postgres']['environment']['POSTGRES_PASSWORD'] = depc.psql_pwd
         if 'nginx' in temp['services'].keys():
             temp['services']['nginx']['environment']['NGINX_PORT'] = depc.nginx_port
-            temp['services']['nginx']['environment']['NGINX_HOST'] = depc.nginx_host
+            temp['services']['nginx']['environment'][
+                'NGINX_HOST'] = host if depc.nginx_host == '127.0.0.1' else depc.nginx_host
         if 'python' in temp['services'].keys():
             temp['services']['python']['command'] = depc.python_command
         # 重新命名容器名称=项目名称_环境名称

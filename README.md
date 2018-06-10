@@ -36,7 +36,7 @@ python_command python容器启动命令 默认：python manage.py runserver 0.0.
 
 nginx_port nginx监听端口 默认：80
 
-nginx_host nginx主机 一般为域名或主机IP 默认：127.0.0.1 *
+nginx_host nginx主机 一般为域名或主机IP 默认：使用ssh的第一个host 
 
 psql_database 默认：db_django
 

@@ -18,7 +18,7 @@ setup(
         'PyYAML'
     ],
     platforms=['Any'],
-    keywords=['django', 'docker', 'postgresql', 'redis'],
+    keywords=['django', 'nginx', 'docker', 'postgresql', 'redis'],
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -34,6 +34,5 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
-        'Framework :: Django',
     ]
 )
