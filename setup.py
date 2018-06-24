@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='nppr',
-    version='0.1.5a',
+    version='0.1.6a',
     description='A nginx/django/postgresql/redis quick deployment tool on docker'
                 'Uses docker-compose',
     url='https://github.com/view868/docker-nppr',

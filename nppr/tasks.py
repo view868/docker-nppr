@@ -115,6 +115,7 @@ def config_build():
         print('复制构建文件...')
         shutil.copytree(CONTAINERS_DIR, depc.build_dir, symlinks=True, ignore=shutil.ignore_patterns('*.py'))
     print('构建/docker-compose.yaml文件...')
+    # nginx_env = []
     with open(CONTAINERS_DIR + '/docker-compose.yml', 'r') as fr:
         temp = yaml.load(fr.read())
         if 'postgres' in temp['services'].keys():
@@ -130,6 +131,9 @@ def config_build():
             temp['services']['nginx']['environment']['NGINX_API_PORT'] = depc.nginx_api_port
             temp['services']['nginx']['environment'][
                 'NGINX_API_HOST'] = host if depc.nginx_host == '127.0.0.1' else depc.nginx_api_host
+            # with open(depc.build_dir + '/nginx/nginx.env', 'w') as fw:
+            #     for key, item in temp['services']['nginx']['environment'].items():
+            #         fw.write('%s=%s \n' % (key, item))
         if 'python' in temp['services'].keys():
             temp['services']['python']['command'] = depc.python_command
         # 重新命名容器名称=项目名称_环境名称
