@@ -43,13 +43,16 @@ services:
     environment:
       NGINX_PORT: 80
       NGINX_HOST: 127.0.0.1
+      NGINX_ROOT: /usr/share/nginx/html
+      NGINX_API_PORT: 80
+      NGINX_API_HOST: 127.0.0.1
     ports:
       - "80:80"
     volumes:
       - ./nginx/data:/usr/share/nginx/html
       - ./nginx/mysite.template:/etc/nginx/conf.d/mysite.template
-      - ./python/data/static:/usr/share/nginx/html/static
-      - ./python/data/uploads:/usr/share/nginx/html/uploads
+#      - ./python/data/static:/usr/share/nginx/html/static
+#      - ./python/data/uploads:/usr/share/nginx/html/uploads
     links:
       - python:python
     command: /bin/bash -c "envsubst < /etc/nginx/conf.d/mysite.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"

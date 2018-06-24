@@ -126,6 +126,10 @@ def config_build():
             temp['services']['nginx']['environment']['NGINX_PORT'] = depc.nginx_port
             temp['services']['nginx']['environment'][
                 'NGINX_HOST'] = host if depc.nginx_host == '127.0.0.1' else depc.nginx_host
+            #
+            temp['services']['nginx']['environment']['NGINX_API_PORT'] = depc.nginx_api_port
+            temp['services']['nginx']['environment'][
+                'NGINX_API_HOST'] = host if depc.nginx_host == '127.0.0.1' else depc.nginx_api_host
         if 'python' in temp['services'].keys():
             temp['services']['python']['command'] = depc.python_command
         # 重新命名容器名称=项目名称_环境名称
@@ -150,10 +154,11 @@ def config_upload():
     tar_name = '%s.tar.gz' % depc.name
     with lcd(depc.build):
         local('tar -zcvf %s containers/' % tar_name)
+        print('删除本地文件...')
+        local('rm -rf containers')
         print('上传压缩文件...')
         with settings(warn_only=True):
             result = put(depc.build + '/%s' % tar_name, depc.deploy_dir + '/%s' % tar_name)
-            print('删除本地文件...')
             local('rm %s' % tar_name)
         if result.failed and not confirm("put file failed, Continue[Y/N]?"):
             os.abort("上传文件失败")
@@ -181,11 +186,11 @@ def docker_create():
     初始化项目
     :return:
     """
-    if not exists(depc.remote_dir + '/python/data/.git'):
-        with cd(depc.remote_dir + '/python'):
+    if not exists(depc.deploy_dir + '/python/data/.git'):
+        with cd(depc.deploy_dir + '/python'):
             print('开始克隆项目...')
             run('git clone ' + depc.git_remote_url + ' data')
-    with cd(depc.remote_dir):
+    with cd(depc.deploy_dir):
         print('开始构建Docker容器...')
         run('docker-compose up -d')
         #
@@ -212,7 +217,7 @@ def deploy():
     部署
     :return:
     """
-    docker_install()
+    # docker_install()
     config_update()
     docker_create()
     print('部署完成！')
@@ -224,7 +229,7 @@ def update():
     更新python
     :return:
     """
-    with cd(depc.remote_dir + '/python/data/'):
+    with cd(depc.deploy_dir + '/python/data/'):
         print('获取git更新...')
         run('git pull')
         cid = get_cid()
@@ -236,9 +241,10 @@ def update():
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
         run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
-    with cd(depc.remote_dir):
+    with cd(depc.deploy_dir):
         print('重启容器...')
         run('docker-compose restart')
+        print('更新完成！')
 
 
 @task()
@@ -247,6 +253,7 @@ def restart():
     重启
     :return:
     """
-    with cd(depc.remote_dir):
+    with cd(depc.deploy_dir):
         print('重启容器...')
         run('docker-compose restart')
+        print('重启完成！')

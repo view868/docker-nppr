@@ -17,4 +17,6 @@ depc.build = TESTS_DIR
 depc.git_remote_url = 'https://github.com/view868/docker-nppr'
 depc.python_command = 'python manage.py runserver 0.0.0.0:80'
 depc.nginx_port = 80
-depc.nginx_hosw = 'www.google.com'
+depc.nginx_host = 'www.google.com'
+depc.nginx_api_port = 80
+depc.nginx_api_host = 'api.google.com'
