@@ -58,6 +58,7 @@ def get_cip(name='python'):
 def docker_install():
     """
     安装必要软件 docker docker-compose postgredql git
+    亚马孙ec2 可能需要执行 chmod +x /usr/local/bin/docker-compose
     :return:
     """
     #
@@ -66,7 +67,7 @@ def docker_install():
         run('curl -sSL https://get.docker.com/ | sh ')
         #
         print('安装docker-compose...')
-        cmd = ''.join(['sudo curl -L',
+        cmd = ''.join(['sudo -i curl -L',
                        ' https://github.com/docker/compose/releases/download/1.19.0/',
                        'docker-compose-`uname -s`-`uname -m`',
                        ' -o /usr/local/bin/docker-compose'])
@@ -76,6 +77,8 @@ def docker_install():
         run('sudo apt install -y postgresql')
         print('安装git...')
         run('sudo apt install -y git')
+        print('安装unzip...')
+        run('sudo apt install -y unzip')
 
 
 @task()
@@ -116,6 +119,7 @@ def config_build():
         shutil.copytree(CONTAINERS_DIR, depc.build_dir, symlinks=True, ignore=shutil.ignore_patterns('*.py'))
     print('构建/docker-compose.yaml文件...')
     # nginx_env = []
+    domain = host if depc.nginx_host == '127.0.0.1' else depc.nginx_api_host
     with open(CONTAINERS_DIR + '/docker-compose.yml', 'r') as fr:
         temp = yaml.load(fr.read())
         if 'postgres' in temp['services'].keys():
@@ -125,17 +129,14 @@ def config_build():
             temp['services']['postgres']['environment']['POSTGRES_PASSWORD'] = depc.psql_pwd
         if 'nginx' in temp['services'].keys():
             temp['services']['nginx']['environment']['NGINX_PORT'] = depc.nginx_port
-            temp['services']['nginx']['environment'][
-                'NGINX_HOST'] = host if depc.nginx_host == '127.0.0.1' else depc.nginx_host
+            temp['services']['nginx']['environment']['NGINX_HOST'] = depc.nginx_host
             #
             temp['services']['nginx']['environment']['NGINX_API_PORT'] = depc.nginx_api_port
             temp['services']['nginx']['environment'][
                 'NGINX_API_HOST'] = host if depc.nginx_host == '127.0.0.1' else depc.nginx_api_host
-            # with open(depc.build_dir + '/nginx/nginx.env', 'w') as fw:
-            #     for key, item in temp['services']['nginx']['environment'].items():
-            #         fw.write('%s=%s \n' % (key, item))
         if 'python' in temp['services'].keys():
             temp['services']['python']['command'] = depc.python_command
+            temp['services']['python']['environment']['WEB_DOMAIN'] = domain.split('.')[1]
         # 重新命名容器名称=项目名称_环境名称
         for item in temp['services']:
             container_name = temp['services'][item]['container_name']
@@ -210,7 +211,7 @@ def docker_create():
         print('同步数据结构...')
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
-        run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
+        # run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
         print('重启容器...')
         run('docker-compose restart')
 
@@ -221,10 +222,15 @@ def deploy():
     部署
     :return:
     """
-    # docker_install()
+    docker_install()
     config_update()
     docker_create()
     print('部署完成！')
+
+
+@task()
+def test():
+    print(get_cip(name='postgres'))
 
 
 @task()
@@ -235,16 +241,18 @@ def update():
     """
     with cd(depc.deploy_dir + '/python/data/'):
         print('获取git更新...')
-        run('git pull')
+        run('git fetch --all')  # 只是下载代码到本地，不进行合并操作
+        run('git reset --hard origin/master')  # 把HEAD指向最新下载的版本
+        # run('git pull')
         cid = get_cid()
         print('安装新的包...')
-        run('docker exec %s pip install -r /www/requirements.txt' % cid)
+        # run('docker exec %s pip install -r /www/requirements.txt' % cid)
         print('生成数据库语句...')
         run('docker exec %s python manage.py makemigrations' % cid)
         print('同步数据结构...')
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
-        run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
+        # run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
     with cd(depc.deploy_dir):
         print('重启容器...')
         run('docker-compose restart')
@@ -257,6 +265,10 @@ def restart():
     重启
     :return:
     """
+    with cd(depc.deploy_dir + '/python/data/'):
+        print('获取git更新...')
+        run('git fetch --all')  # 只是下载代码到本地，不进行合并操作
+        run('git reset --hard origin/master')  # 把HEAD指向最新下载的版本
     with cd(depc.deploy_dir):
         print('重启容器...')
         run('docker-compose restart')

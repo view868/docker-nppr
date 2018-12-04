@@ -1,14 +1,17 @@
-version: "3"
+version: "3.5"
 services:
 
   postgres:
     restart: always
-    build: ./postgres/
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+      shm_size: '1gb'
     container_name: postgres
     volumes:
       - ./postgres/data:/var/lib/postgresql/data
     expose:
-      - "54321"
+      - "5432"
     environment:
       POSTGRES_DB: db_django
       POSTGRES_USER: root
@@ -25,6 +28,11 @@ services:
     restart: always
     build: ./python/
     container_name: python
+    privileged: true
+    env_file:
+      - ./python/python.env
+    environment:
+      WEB_DOMAIN: 127.0.0.1
     ports:
       - "8000:80"
     links:
