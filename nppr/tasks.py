@@ -65,6 +65,7 @@ def docker_install():
     with settings(warn_only=True):
         print('安装docker...')
         run('curl -sSL https://get.docker.com/ | sh ')
+        # run('wget -qO- https://get.docker.com/ | sh')
         #
         print('安装docker-compose...')
         cmd = ''.join(['sudo -i curl -L',
@@ -211,9 +212,25 @@ def docker_create():
         print('同步数据结构...')
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
-        # run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
+        run('docker exec %s python manage.py loaddata fixtures/init.json' % cid)
         print('重启容器...')
         run('docker-compose restart')
+
+
+@task()
+def collectstatic():
+    cid = get_cid()
+    print('收集静态文件...')
+    run('docker exec %s python manage.py collectstatic' % cid)
+    print('收集静态文件完成')
+
+
+@task()
+def loaddata():
+    cid = get_cid()
+    print('载入基础数据...')
+    run('docker exec %s python manage.py loaddata fixtures/init.json' % cid)
+    print('载入基础数据完成')
 
 
 @task()
@@ -223,6 +240,18 @@ def deploy():
     :return:
     """
     docker_install()
+    config_update()
+    docker_create()
+    print('部署完成！')
+
+
+@task()
+def redeploy():
+    """
+    部署
+    :return:
+    """
+    docker_clean()
     config_update()
     docker_create()
     print('部署完成！')
@@ -243,16 +272,15 @@ def update():
         print('获取git更新...')
         run('git fetch --all')  # 只是下载代码到本地，不进行合并操作
         run('git reset --hard origin/master')  # 把HEAD指向最新下载的版本
-        # run('git pull')
         cid = get_cid()
         print('安装新的包...')
-        # run('docker exec %s pip install -r /www/requirements.txt' % cid)
+        run('docker exec %s pip install -r /www/requirements.txt' % cid)
         print('生成数据库语句...')
         run('docker exec %s python manage.py makemigrations' % cid)
         print('同步数据结构...')
         run('docker exec %s python manage.py migrate' % cid)
-        print('载入数据...')
-        # run('docker exec %s python manage.py loaddata fixtures/all.json' % cid)
+        # print('载入数据...')
+        # run('docker exec %s python manage.py loaddata fixtures/init.json' % cid)
     with cd(depc.deploy_dir):
         print('重启容器...')
         run('docker-compose restart')
