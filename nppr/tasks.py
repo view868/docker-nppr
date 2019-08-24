@@ -59,6 +59,8 @@ def docker_install():
     """
     安装必要软件 docker docker-compose postgredql git
     亚马孙ec2 可能需要执行 chmod +x /usr/local/bin/docker-compose
+    sudo -i curl -L https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+
     :return:
     """
     #
@@ -212,7 +214,7 @@ def docker_create():
         print('同步数据结构...')
         run('docker exec %s python manage.py migrate' % cid)
         print('载入数据...')
-        run('docker exec %s python manage.py loaddata fixtures/init.json' % cid)
+        # run('docker exec %s python manage.py loaddata fixtures/init.json' % cid)
         print('重启容器...')
         run('docker-compose restart')
 
@@ -288,6 +290,33 @@ def update():
 
 
 @task()
+def update_code():
+    """
+    更新python代码
+    :return:
+    """
+    with cd(depc.deploy_dir + '/python/data/'):
+        print('获取git更新...')
+        run('git fetch --all')  # 只是下载代码到本地，不进行合并操作
+        run('git reset --hard origin/master')  # 把HEAD指向最新下载的版本
+        print('更新代码完成')
+
+
+@task()
+def update_html():
+    """
+    更新html代码
+    :return:
+    """
+    with cd(depc.deploy_dir + '/nginx/data/'):
+        print('解压dist.zip...')
+        run('unzip ./dist.zip')
+        run('rm -rf ./assets')
+        run('mv ./dist/* ./')
+        print('更新html代码完成')
+
+
+@task()
 def restart():
     """
     重启
@@ -297,6 +326,24 @@ def restart():
         print('获取git更新...')
         run('git fetch --all')  # 只是下载代码到本地，不进行合并操作
         run('git reset --hard origin/master')  # 把HEAD指向最新下载的版本
+    with cd(depc.deploy_dir):
+        print('重启容器...')
+        run('docker-compose restart')
+        print('重启完成！')
+
+
+@task()
+def migrate():
+    """
+    重启
+    :return:
+    """
+    with cd(depc.deploy_dir + '/python/data/'):
+        cid = get_cid()
+        print('生成数据库语句...')
+        run('docker exec %s python manage.py makemigrations' % cid)
+        print('同步数据结构...')
+        run('docker exec %s python manage.py migrate' % cid)
     with cd(depc.deploy_dir):
         print('重启容器...')
         run('docker-compose restart')

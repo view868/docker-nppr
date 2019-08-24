@@ -1,5 +1,22 @@
 version: "3.5"
 services:
+  postgres:
+    restart: always
+    privileged: true
+    build:
+      context: ./postgres
+      dockerfile: Dockerfile
+      shm_size: '1gb'
+    container_name: postgres
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_DB: db_django
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+
   redis:
     restart: always
     image: redis
@@ -21,6 +38,7 @@ services:
       - "80"
     links:
       - redis:redis
+      - postgres:postgres
     volumes:
       - ./python/data:/www
     command: python manage.py runserver 0.0.0.0:80
@@ -50,7 +68,6 @@ services:
       NGINX_API_ROOT: /usr/share/nginx/assets
     ports:
       - "80:80"
-      - "8080:8080"
       - "443:443"
     volumes:
       - ./nginx/data:/usr/share/nginx/html
