@@ -74,8 +74,5 @@ update 更新项目
 
 restart 重启服务
 
-# 只允许指定域名访问
-    if ( $host != 'x1.auibit.xyz' ){
-      return 403;
-    }
+
     
