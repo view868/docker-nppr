@@ -79,5 +79,3 @@ restart 重启服务
       return 403;
     }
     
-git clone https://view868:View3405@code.aliyun.com/75088-demo/exchange-api.git data
-git clone https://code.aliyun.com/75088-demo/exchange-api.git data
